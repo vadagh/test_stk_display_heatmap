@@ -3,27 +3,26 @@ from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import io # Required for reading string data as a file
+import json
 
 # Authenticate and connect to Google Sheets
-def connect_to_gsheet(creds_json, spreadsheet_name, sheet_name):
-    scope = ["https://spreadsheets.google.com/feeds", 
-             'https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive.file", 
-             "https://www.googleapis.com/auth/drive"]
-    
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(creds_json, scope)
+def connect_to_gsheet(scope, spreadsheet_name, sheet_name=None):
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gspread_service_account"], scope
+    )
     client = gspread.authorize(credentials)
-    spreadsheet = client.open(spreadsheet_name)  
-    return spreadsheet.worksheet(sheet_name)  # Access specific sheet by name
+    sheet = client.open(spreadsheet_name)
+    if sheet_name:
+        return sheet.worksheet(sheet_name)
+    return sheet.sheet1
 
 # Google Sheet credentials and details
 SPREADSHEET_NAME = 'Stock Dashboard'
-SHEET_NAME = 'AAPL'
-CREDENTIALS_FILE = 'C:/Users/srinu/sandbox/py/credentials.json'
+scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',
+         "https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 
 # Connect to the Google Sheet
-sheet_by_name = connect_to_gsheet(CREDENTIALS_FILE, SPREADSHEET_NAME, sheet_name=SHEET_NAME)
+sheet_by_name = connect_to_gsheet(scope, SPREADSHEET_NAME, sheet_name=None)
 
 
 #st.title("Simple Data Entry using Streamlit")
