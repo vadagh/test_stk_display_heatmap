@@ -1,0 +1,5 @@
+google-auth
+streamlit
+gspread
+plotly
+oauth2client
